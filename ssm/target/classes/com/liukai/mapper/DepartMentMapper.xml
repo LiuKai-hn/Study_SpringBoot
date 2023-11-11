@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="com.liukai.mapper.DepartMentMapper">
+
+    <resultMap id="queryAllPid" type="departMent">
+        <id property="dept_id" column="dept_id"/>
+        <result property="dept_name" column="dept_name"/>
+        <result property="p_id" column="p_id"/>
+    </resultMap>
+
+    <select id="queryAll" resultMap="queryAllPid">
+        select
+        dept_id,
+        dept_name,
+        parent_id as p_id
+        from sys_dept
+        where parent_id='1565322350815932422' or dept_id='1565322350815932422'
+    </select>
+
+    <resultMap id="deptMap" type="departMent">
+        <id property="dept_id" column="dept_id"/>
+        <result property="dept_name" column="dept_name"/>
+        <collection property="departMentList" ofType="departMent">
+            <result property="dept_id" column="z_id"/>
+            <result property="dept_name" column="z_name"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="getByDeptId" resultMap="deptMap">
+        select
+        f_tb.dept_id as dept_id,
+        f_tb.dept_name as dept_name,
+        z_tb.dept_id as z_id,
+        z_tb.dept_name as z_name
+        from sys_dept f_tb
+        left join sys_dept z_tb on f_tb.dept_id = z_tb.parent_id
+        where f_tb.dept_id=#{dept_id}
+    </select>
+
+    <!-- 递归查询 -->
+
+    <resultMap id="BaseResultMap" type="departMent">
+        <id column="dept_id" property="dept_id" jdbcType="VARCHAR"/>
+        <result column="dept_name" property="dept_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="DepartmentWithChildren" type="departMent" extends="BaseResultMap">
+        <collection property="departMentList" ofType="departMent" select="getAllDepartmentsByParentId" column="dept_id">
+
+        </collection>
+    </resultMap>
+
+    <select id="getAllDepartmentsByParentId" resultMap="DepartmentWithChildren">
+        select  dept_id,
+                dept_name
+        from sys_dept
+        where parent_id =#{pid}
+    </select>
+</mapper>
