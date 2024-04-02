@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace = 接口的全限定符 -->
+<mapper namespace="com.liukai.mapper.GetTableComment">
+
+<!--    <select id="queryDatabase" resultType="tableComment">
+        select * from my_user
+    </select>-->
+    <resultMap id="TableInfoResultMap" type="tableComment">
+        <result property="dbName" column="DB_NAME"/>
+        <result property="tableName" column="TBL_NAME"/>
+        <result property="paramValue" column="PARAM_VALUE"/>
+    </resultMap>
+
+    <select id="queryDatabase" resultMap="TableInfoResultMap">
+        SELECT dbs.NAME as DB_NAME,-- 库名称
+        TBL_NAME,
+        PARAM_VALUE
+        FROM TBLS
+        JOIN TABLE_PARAMS ON TBLS.TBL_ID = TABLE_PARAMS.TBL_ID
+        join dbs on dbs.DB_ID = tbls.DB_ID
+        WHERE dbs.NAME = #{databaseName} AND PARAM_KEY = 'comment'
+    </select>
+
+    <!-- 查询所有库中表注释 -->
+    <select id="queryAllDatabase" resultMap="TableInfoResultMap">
+        SELECT DBS.name as DB_NAME,-- 库名称
+        TBL_NAME, -- 表名称
+        PARAM_VALUE -- 表注释
+        FROM TBLS
+        JOIN TABLE_PARAMS ON TBLS.TBL_ID = TABLE_PARAMS.TBL_ID
+        join DBS on tbls.DB_ID = dbs.DB_ID
+        WHERE PARAM_KEY = 'comment'
+        <if test="dbName != null and dbName != ''">
+            AND DBS.name = #{dbName}
+        </if>
+        <if test="commentLike != null and commentLike != ''">
+            AND PARAM_VALUE LIKE CONCAT('%', #{commentLike}, '%')
+        </if>
+    </select>
+
+    <!-- 查询所有库中表注释 -->
+    <select id="queryTableByCommentLike" resultMap="TableInfoResultMap">
+        SELECT DBS.name as DB_NAME, -- 库名称
+        TBL_NAME, -- 表名称
+        PARAM_VALUE -- 表注释
+        FROM TBLS
+        JOIN TABLE_PARAMS ON TBLS.TBL_ID = TABLE_PARAMS.TBL_ID
+        JOIN DBS ON TBLS.DB_ID = DBS.DB_ID
+        WHERE PARAM_KEY = 'comment'
+        <if test="dbName != null and dbName != ''">
+            AND DBS.name = #{dbName}
+        </if>
+        <if test="tableCommLike != null and tableCommLike != ''">
+            AND PARAM_VALUE LIKE CONCAT('%', #{tableCommLike}, '%')
+        </if>
+    </select>
+
+    <!--List<String> getDBs();-->
+    <select id="getDBs" resultType="string">
+        select name as dbName from dbs
+    </select>
+
+</mapper>

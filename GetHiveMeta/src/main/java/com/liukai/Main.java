@@ -1,15 +1,13 @@
-package org.example;
+package com.liukai;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MainApplication {
-
-
-
+@MapperScan("com.liukai.mapper")
+public class Main {
     public static void main(String[] args) {
-        SpringApplication.run(MainApplication.class,args);
+        SpringApplication.run(Main.class,args);
     }
 }

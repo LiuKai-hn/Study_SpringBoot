@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace = 接口的全限定符 -->
+<mapper namespace="com.liukai.mapper.GetColumnComment">
+
+    <resultMap id="TableColInfoResultMap" type="columnComment">
+        <result property="dbName" column="database_name"/>
+        <result property="tableName" column="table_name"/>
+        <result property="tableComment" column="table_comment"/>
+        <result property="columnName" column="column_name"/>
+        <result property="columnComment" column="column_comment"/>
+    </resultMap>
+
+    <!-- 查询所有库中表字段注释
+    ColumnComment queryColCommByDBAndTbName(String dbName,String tbName);
+    -->
+    <select id="queryColCommByDBAndTbName" resultMap="TableColInfoResultMap">
+        SELECT t2.`NAME`                       database_name,     -- 库名
+        t1.`TBL_NAME`                   table_name,        -- 表名
+        t3.`PARAM_VALUE`                table_comment,     -- 表注释
+        -- FROM_UNIXTIME(t1.CREATE_TIME) table_create_time, -- 表创建时间
+        t5.`COLUMN_NAME`                column_name,       -- 字段名
+        t5.`COMMENT`                    column_comment     -- 字段注释
+        -- t5.`TYPE_NAME`                  `column_data_type`   -- 字段数据类型
+        FROM tbls t1 -- 获取表名称及表创建时间
+        JOIN dbs t2 -- 获取库名及库注释
+        ON t1.DB_ID = t2.DB_ID -- 以库ID作为关联关系
+        JOIN (SELECT TBL_ID,PARAM_KEY,PARAM_VALUE FROM table_params WHERE PARAM_KEY = 'comment') t3
+        ON t1.TBL_ID = t3.TBL_ID
+        JOIN sds t4 -- 获取C_ID,用以获取字段注释
+        ON t1.SD_ID = t4.SD_ID -- 以S_ID作为关联关系获取C_ID
+        JOIN columns_v2 t5 -- 字段名称及字段注释都在此表中
+        ON t4.CD_ID = t5.CD_ID
+        WHERE t2.NAME = #{dbName} and t1.TBL_NAME = #{tbName}
+    </select>
+
+    <!-- 模糊查询字段注释获取表信息
+    List<ColumnComment> getTbleInfoByColComm(String colcommname);
+    -->
+    <select id="getTbleInfoByColComm" resultMap="TableColInfoResultMap">
+        SELECT t2.`NAME`                       database_name,     -- 库名
+        t1.`TBL_NAME`                   table_name,        -- 表名
+        t3.`PARAM_VALUE`                table_comment,     -- 表注释
+        -- FROM_UNIXTIME(t1.CREATE_TIME) table_create_time, -- 表创建时间
+        t5.`COLUMN_NAME`                column_name,       -- 字段名
+        t5.`COMMENT`                    column_comment     -- 字段注释
+        -- t5.`TYPE_NAME`                  `column_data_type`   -- 字段数据类型
+        FROM tbls t1 -- 获取表名称及表创建时间
+        JOIN dbs t2 -- 获取库名及库注释
+        ON t1.DB_ID = t2.DB_ID -- 以库ID作为关联关系
+        JOIN (SELECT TBL_ID,PARAM_KEY,PARAM_VALUE FROM table_params WHERE PARAM_KEY = 'comment') t3
+        ON t1.TBL_ID = t3.TBL_ID
+        JOIN sds t4 -- 获取C_ID,用以获取字段注释
+        ON t1.SD_ID = t4.SD_ID -- 以S_ID作为关联关系获取C_ID
+        JOIN columns_v2 t5 -- 字段名称及字段注释都在此表中
+        ON t4.CD_ID = t5.CD_ID
+        where t5.`COMMENT` LIKE CONCAT('%', #{tableName}, '%')
+    </select>
+
+</mapper>

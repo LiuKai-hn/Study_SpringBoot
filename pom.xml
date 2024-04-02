@@ -14,18 +14,20 @@
         <module>bootCombineMybatis</module>
         <module>bootCombineMybatisPlus</module>
         <module>ssm</module>
+        <module>GetHiveMeta</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <!--所有springboot项目都必须继承自 spring-boot-starter-parent-->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.5</version>
+        <version>2.7.5</version>
+
     </parent>
 
     <dependencies>
